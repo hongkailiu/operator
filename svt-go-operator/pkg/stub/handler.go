@@ -60,9 +60,9 @@ func (h *Handler) Handle(ctx context.Context, event sdk.Event) error {
 			}
 		}
 
-		// Update the Memcached status with the pod names
+		// Update the svtgo status with the pod names
 		podList := podList()
-		labelSelector := labels.SelectorFromSet(labelsForMemcached(svtGo.Name)).String()
+		labelSelector := labels.SelectorFromSet(labelsForSVTGo(svtGo.Name)).String()
 		listOps := &metav1.ListOptions{LabelSelector: labelSelector}
 		err = sdk.List(svtGo.Namespace, podList, sdk.WithListOptions(listOps))
 		if err != nil {
@@ -73,14 +73,14 @@ func (h *Handler) Handle(ctx context.Context, event sdk.Event) error {
 			svtGo.Status.Nodes = podNames
 			err := sdk.Update(svtGo)
 			if err != nil {
-				return fmt.Errorf("failed to update memcached status: %v", err)
+				return fmt.Errorf("failed to update svtgo status: %v", err)
 			}
 		}
 	}
 	return nil
 }
 
-// deploymentForMemcached returns a memcached Deployment object
+// deploymentForSVTGo returns a svtgo Deployment object
 func deploymentForSVTGo(m *v1alpha1.SVTGo) *appsv1.Deployment {
 	ls := labelsForSVTTo(m.Name)
 	replicas := m.Spec.Size
@@ -105,9 +105,9 @@ func deploymentForSVTGo(m *v1alpha1.SVTGo) *appsv1.Deployment {
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Image:   "memcached:1.4.36-alpine",
-						Name:    "memcached",
-						Command: []string{"memcached", "-m=64", "-o", "modern", "-v"},
+						Image:   "docker.io/hongkailiu/svt-go:http",
+						Name:    "svtgo",
+						//Command: []string{"memcached", "-m=64", "-o", "modern", "-v"},
 						Ports: []corev1.ContainerPort{{
 							ContainerPort: 8080,
 							Name:          "http",
@@ -121,9 +121,9 @@ func deploymentForSVTGo(m *v1alpha1.SVTGo) *appsv1.Deployment {
 	return dep
 }
 
-// labelsForMemcached returns the labels for selecting the resources
-// belonging to the given memcached CR name.
-func labelsForSVTTo(name string) map[string]string {
+// labelsForSVTGo returns the labels for selecting the resources
+// belonging to the given svtgo CR name.
+func labelsForSVTGo(name string) map[string]string {
 	return map[string]string{"app": "svtgo", "svtgo_cr": name}
 }
 
@@ -132,8 +132,8 @@ func addOwnerRefToObject(obj metav1.Object, ownerRef metav1.OwnerReference) {
 	obj.SetOwnerReferences(append(obj.GetOwnerReferences(), ownerRef))
 }
 
-// asOwner returns an OwnerReference set as the memcached CR
-func asOwner(m *v1alpha1.Memcached) metav1.OwnerReference {
+// asOwner returns an OwnerReference set as the svtgo CR
+func asOwner(m *v1alpha1.SVTGo) metav1.OwnerReference {
 	trueVar := true
 	return metav1.OwnerReference{
 		APIVersion: m.APIVersion,
