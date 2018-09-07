@@ -25,6 +25,9 @@ func (h *Handler) Handle(ctx context.Context, event sdk.Event) error {
 	logrus.Infof("=================000")
 	switch o := event.Object.(type) {
 	case *v1alpha1.SVTGo:
+		svtGo := o
+		logrus.Infof("=================111 svtGo.Spec.Size: %d", svtGo.Spec.Size)
+		logrus.Infof("=================222 svtGo.Spec.Size: %v", svtGo.Status.Nodes)
 		err := sdk.Create(newbusyBoxPod(o))
 		if err != nil && !errors.IsAlreadyExists(err) {
 			logrus.Errorf("failed to create busybox pod : %v", err)
