@@ -82,7 +82,7 @@ func (h *Handler) Handle(ctx context.Context, event sdk.Event) error {
 
 // deploymentForSVTGo returns a svtgo Deployment object
 func deploymentForSVTGo(m *v1alpha1.SVTGo) *appsv1.Deployment {
-	ls := labelsForSVTTo(m.Name)
+	ls := labelsForSVTGo(m.Name)
 	replicas := m.Spec.Size
 
 	dep := &appsv1.Deployment{
