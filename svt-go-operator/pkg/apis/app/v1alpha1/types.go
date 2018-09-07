@@ -22,8 +22,10 @@ type SVTGo struct {
 }
 
 type SVTGoSpec struct {
-	// Fill me
+	// Size is the size of the memcached deployment
+	Size int32 `json:"size"`
 }
 type SVTGoStatus struct {
-	// Fill me
+	// Nodes are the names of the memcached pods
+	Nodes []string `json:"nodes"`
 }

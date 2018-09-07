@@ -11,6 +11,8 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+
+	"github.com/sirupsen/logrus"
 )
 
 func NewHandler() sdk.Handler {
@@ -22,6 +24,7 @@ type Handler struct {
 }
 
 func (h *Handler) Handle(ctx context.Context, event sdk.Event) error {
+	logrus.Infof("=================000")
 	switch o := event.Object.(type) {
 	case *v1alpha1.SVTGo:
 		err := sdk.Create(newbusyBoxPod(o))
