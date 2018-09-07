@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: svt-go-operator
-          image: docker.io/hongkailiu/svt-go-operator:a001
+          image: docker.io/hongkailiu/svt-go-operator:a003
           ports:
           - containerPort: 60000
             name: metrics

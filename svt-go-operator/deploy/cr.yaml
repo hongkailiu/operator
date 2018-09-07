@@ -2,3 +2,5 @@ apiVersion: "app.example.com/v1alpha1"
 kind: "SVTGo"
 metadata:
   name: "example"
+spec:
+  size: 2
