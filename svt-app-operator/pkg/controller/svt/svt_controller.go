@@ -146,6 +146,7 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	}
 
 	// Update the svtgo status with the pod names
+	reqLogger.Info("===001")
 	podList := podList()
 	labelSelector := labels.SelectorFromSet(labelsForSVT(instance.Name))
 	listOps := &client.ListOptions{LabelSelector: labelSelector}
@@ -153,10 +154,14 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	if err != nil {
 		return reconcile.Result{}, fmt.Errorf("failed to list pods: %v", err)
 	}
+	reqLogger.Info("===002")
 	podNames := getPodNames(podList.Items)
 	if !reflect.DeepEqual(podNames, instance.Status.Nodes) {
+		reqLogger.Info("===003")
 		instance.Status.Nodes = podNames
+		reqLogger.Info("===006")
 		err := r.client.Update(context.TODO(), instance)
+		reqLogger.Info("===007")
 		if err != nil {
 			return reconcile.Result{}, fmt.Errorf("failed to update svtgo status: %v", err)
 		}
