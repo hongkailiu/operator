@@ -16,7 +16,7 @@ spec:
       containers:
         - name: svt-app-operator
           # Replace this with the built image name
-          image: quay.io/hongkailiu/svt-app-operator:a002
+          image: quay.io/hongkailiu/svt-app-operator:a003
           command:
           - svt-app-operator
           imagePullPolicy: Always

@@ -121,14 +121,19 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 			return reconcile.Result{}, err
 		}
 
+		err = r.client.Get(context.TODO(), types.NamespacedName{Name: deployment.Name, Namespace: deployment.Namespace}, found)
+		if err != nil {
+			return reconcile.Result{}, fmt.Errorf("failed to get deployment: %v", err)
+		}
+
 		// Deployment created successfully - don't requeue
 		// return reconcile.Result{}, nil
 	} else if err != nil {
 		return reconcile.Result{}, err
+	} else {
+		// Deployment already exists - don't requeue
+		reqLogger.Info("Skip reconcile: Deployment already exists", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
 	}
-
-	// Pod already exists - don't requeue
-	reqLogger.Info("Skip reconcile: Deployment already exists", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
 
 	// Ensure the deployment size is the same as the spec
 	size := instance.Spec.Size
@@ -198,7 +203,6 @@ func deploymentForSVT(m *appv1alpha1.SVT) *appsv1.Deployment {
 			},
 		},
 	}
-	addOwnerRefToObject(dep, asOwner(m))
 	return dep
 }
 
@@ -206,11 +210,6 @@ func deploymentForSVT(m *appv1alpha1.SVT) *appsv1.Deployment {
 // belonging to the given svtgo CR name.
 func labelsForSVT(name string) map[string]string {
 	return map[string]string{"app": "svt", "svt_cr": name}
-}
-
-// addOwnerRefToObject appends the desired OwnerReference to the object
-func addOwnerRefToObject(obj metav1.Object, ownerRef metav1.OwnerReference) {
-	obj.SetOwnerReferences(append(obj.GetOwnerReferences(), ownerRef))
 }
 
 // asOwner returns an OwnerReference set as the svtgo CR
