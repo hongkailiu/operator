@@ -162,7 +162,7 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	instance.Status.Nodes = []string{"111", "222"}
 	fmt.Println(fmt.Sprintf("=====instance.Status: %v", instance.Status))
 	reqLogger.Info("===006")
-	err = r.client.Update(context.TODO(), instance)
+	err = r.client.Status().Update(context.TODO(), instance)
 	reqLogger.Info("===007")
 	if err != nil {
 		return reconcile.Result{}, fmt.Errorf("failed to update svtgo status: %v", err)
