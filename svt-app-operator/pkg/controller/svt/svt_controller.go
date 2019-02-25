@@ -3,8 +3,6 @@ package svt
 import (
 	"context"
 	"fmt"
-	"reflect"
-
 	appv1alpha1 "github.com/hongkailiu/operators/svt-app-operator/pkg/apis/app/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -157,16 +155,15 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	}
 	reqLogger.Info("===002")
 	podNames := getPodNames(podList.Items)
-	if !reflect.DeepEqual(podNames, instance.Status.Nodes) {
-		reqLogger.Info("===003")
-		instance.Status.Nodes = podNames
-		fmt.Println(fmt.Sprintf("=====instance.Status.Nodes: %v", instance.Status.Nodes))
-		reqLogger.Info("===006")
-		err := r.client.Update(context.TODO(), instance)
-		reqLogger.Info("===007")
-		if err != nil {
-			return reconcile.Result{}, fmt.Errorf("failed to update svtgo status: %v", err)
-		}
+	fmt.Println(fmt.Sprintf("=====podNames: %v", podNames))
+	reqLogger.Info("===003")
+	instance.Status.Nodes = []string{"111", "222"}
+	fmt.Println(fmt.Sprintf("=====instance.Status: %v", instance.Status))
+	reqLogger.Info("===006")
+	err = r.client.Update(context.TODO(), instance)
+	reqLogger.Info("===007")
+	if err != nil {
+		return reconcile.Result{}, fmt.Errorf("failed to update svtgo status: %v", err)
 	}
 
 	return reconcile.Result{}, nil
