@@ -3,6 +3,7 @@ package svt
 import (
 	"context"
 	"fmt"
+
 	appv1alpha1 "github.com/hongkailiu/operators/svt-app-operator/pkg/apis/app/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -90,6 +91,7 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	// Fetch the SVT instance
 	instance := &appv1alpha1.SVT{}
 	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
+	fmt.Println(fmt.Sprintf("000=====instance.Status: %v", instance.Status))
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.
