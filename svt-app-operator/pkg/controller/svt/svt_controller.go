@@ -160,6 +160,7 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	if !reflect.DeepEqual(podNames, instance.Status.Nodes) {
 		reqLogger.Info("===003")
 		instance.Status.Nodes = podNames
+		fmt.Println(fmt.Sprintf("=====instance.Status.Nodes: %v", instance.Status.Nodes))
 		reqLogger.Info("===006")
 		err := r.client.Update(context.TODO(), instance)
 		reqLogger.Info("===007")
