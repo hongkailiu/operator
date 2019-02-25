@@ -122,13 +122,13 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		}
 
 		// Deployment created successfully - don't requeue
-		return reconcile.Result{}, nil
+		// return reconcile.Result{}, nil
 	} else if err != nil {
 		return reconcile.Result{}, err
 	}
 
 	// Pod already exists - don't requeue
-	reqLogger.Info("Skip reconcile: Pod already exists", "Pod.Namespace", found.Namespace, "Pod.Name", found.Name)
+	reqLogger.Info("Skip reconcile: Deployment already exists", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
 
 	// Ensure the deployment size is the same as the spec
 	size := instance.Spec.Size
