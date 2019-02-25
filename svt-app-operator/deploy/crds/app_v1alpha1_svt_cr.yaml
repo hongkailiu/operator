@@ -1,0 +1,7 @@
+apiVersion: app.test.com/v1alpha1
+kind: SVT
+metadata:
+  name: example-svt
+spec:
+  # Add fields here
+  size: 3
