@@ -198,7 +198,7 @@ func deploymentForSVT(m *appv1alpha1.SVT) *appsv1.Deployment {
 			Kind:       "Deployment",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("d-%s", m.Name),
+			Name:      m.Name,
 			Namespace: m.Namespace,
 		},
 		Spec: appsv1.DeploymentSpec{
