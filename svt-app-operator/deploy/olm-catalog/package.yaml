@@ -1,0 +1,4 @@
+packageName: svt
+channels:
+  - name: alpha
+    currentCSV: svt-app-operator.v0.0.2

@@ -1,0 +1,115 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  name: svt-app-operator.v0.0.2
+spec:
+  version: 0.0.2
+  displayName: SVT Application
+  provider:
+    name: RH SVT
+    url: www.redhat.com
+  maturity: alpha
+  maintainers:
+    - email: svt@redhat.com
+      name: RH SVT
+  labels:
+    olm-owner-enterprise-app: svt-app-operator
+    olm-status-descriptors: svt-app-operator.v0.0.2
+  description: SVT Tool in GoLang
+  install:
+    strategy: deployment
+    spec:
+      permissions:
+        - serviceAccountName: svt-app-operator
+          rules:
+            - apiGroups:
+                - app.test.com
+              resources:
+                - "*"
+              verbs:
+                - "*"
+            - apiGroups:
+                - ""
+              resources:
+                - pods
+                - services
+                - endpoints
+                - persistentvolumeclaims
+                - events
+                - configmaps
+                - secrets
+              verbs:
+                - "*"
+            - apiGroups:
+                - apps
+              resources:
+                - deployments
+                - daemonsets
+                - replicasets
+                - statefulsets
+              verbs:
+                - "*"
+            - apiGroups:
+                - apps.openshift.io
+              resources:
+                - deploymentconfigs
+              verbs:
+                - "*"
+            - apiGroups:
+                - route.openshift.io
+              resources:
+                - routes
+              verbs:
+                - "*"
+            - apiGroups:
+                - ""
+              resources:
+                - namespaces
+              verbs:
+                - "get"
+      deployments:
+        - name: svt-app-operator
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: svt-app-operator
+            template:
+              metadata:
+                labels:
+                  app: svt-app-operator
+              spec:
+                containers:
+                  - name: svt-app-operator-olm-owned
+                    image: quay.io/hongkailiu/svt-app-operator:a011
+                    imagePullPolicy: Always
+                    env:
+                      - name: MY_POD_NAMESPACE
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: metadata.namespace
+                      - name: WATCH_NAMESPACE
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: metadata.namespace
+                      - name: MY_POD_NAME
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: metadata.name
+                restartPolicy: Always
+                terminationGracePeriodSeconds: 5
+                serviceAccountName: svt-app-operator
+  customresourcedefinitions:
+    owned:
+      - description: Represents a cluster of SVT apps
+        displayName: SVT App
+        kind: SVT
+        name: svts.app.test.com
+        version: v1alpha1
+        resources:
+          - kind: Deployment
+            version: apps/v1
+          - kind: Pod
+            version: v1
+          - kind: Service
+            version: v1
