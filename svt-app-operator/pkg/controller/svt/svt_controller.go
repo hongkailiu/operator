@@ -188,6 +188,7 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 
 // deploymentForSVTGo returns a svtgo Deployment object
 func deploymentForSVT(m *appv1alpha1.SVT) *appsv1.Deployment {
+	fmt.Println("abc=============m.Name" + m.Name)
 	ls := labelsForSVT(m.Name)
 	replicas := m.Spec.Size
 
