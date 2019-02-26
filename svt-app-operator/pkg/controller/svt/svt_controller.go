@@ -93,7 +93,6 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	// Fetch the SVT instance
 	instance := &appv1alpha1.SVT{}
 	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
-	fmt.Println(fmt.Sprintf("000=====instance.Status: %v", instance.Status))
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.
@@ -138,7 +137,7 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		if err != nil {
 			return false, fmt.Errorf("failed to get deployment: %v", err)
 		}
-		if *found.Spec.Replicas != found.Status.Replicas {
+		if *found.Spec.Replicas != found.Status.AvailableReplicas {
 			reqLogger.Info("waiting for deployment's replicas to be satisfied ...")
 			return false, nil
 		}
