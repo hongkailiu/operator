@@ -188,7 +188,6 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 
 // deploymentForSVTGo returns a svtgo Deployment object
 func deploymentForSVT(m *appv1alpha1.SVT) *appsv1.Deployment {
-	fmt.Println("abc=============m.Name" + m.Name)
 	ls := labelsForSVT(m.Name)
 	replicas := m.Spec.Size
 
@@ -212,9 +211,11 @@ func deploymentForSVT(m *appv1alpha1.SVT) *appsv1.Deployment {
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Image: "docker.io/hongkailiu/svt-go:http",
+						Image: "quay.io/hongkailiu/test-go:http-0.0.13",
 						Name:  "svt",
-						//Command: []string{"memcached", "-m=64", "-o", "modern", "-v"},
+						Command: []string{"/http"},
+						Args: []string{"start", "-v"},
+						Env: []corev1.EnvVar{{Name:"GIN_MODE", Value:"release"}},
 						Ports: []corev1.ContainerPort{{
 							ContainerPort: 8080,
 							Name:          "http",
