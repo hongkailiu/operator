@@ -131,12 +131,15 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		reqLogger.Info("Skip reconcile: Deployment already exists", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
 	}
 
+
+	fmt.Println(fmt.Sprintf("000"))
 	// wait 10 minutes for deployment's replicas to be satisfied
 	err = wait.Poll(10*time.Second, 10*time.Minute, func() (bool, error) {
 		err = r.client.Get(context.TODO(), types.NamespacedName{Name: deployment.Name, Namespace: deployment.Namespace}, found)
 		if err != nil {
 			return false, fmt.Errorf("failed to get deployment: %v", err)
 		}
+		fmt.Println(fmt.Sprintf("000=====instance.Status: %d===%d", *found.Spec.Replicas, found.Status.AvailableReplicas))
 		if *found.Spec.Replicas != found.Status.AvailableReplicas {
 			reqLogger.Info("waiting for deployment's replicas to be satisfied ...")
 			return false, nil
