@@ -113,6 +113,7 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		// Error reading the object - requeue the request.
 		return reconcile.Result{}, err
 	}
+
 	deployment := deploymentForSVT(instance)
 
 	// Set SVT instance as the owner and controller
@@ -211,7 +212,9 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		instance.Status.Nodes = podNames
 		//https://github.com/operator-framework/operator-sdk/blob/master/doc/user/client.md#updating-status-subresource
 		err = r.client.Status().Update(context.TODO(), instance)
-		if err != nil {
+		if err != nil && errors.IsResourceExpired(err) {
+			return reconcile.Result{Requeue: true}, fmt.Errorf("failed to update svt status (ResourceExpired): %v", err)
+		} else {
 			return reconcile.Result{}, fmt.Errorf("failed to update svt status: %v", err)
 		}
 	}
