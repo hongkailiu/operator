@@ -181,10 +181,8 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 			return false, fmt.Errorf("failed to get deployment: %v", err)
 		}
 		reqLogger.Info("got values ...",
-			"*found.Spec.Replicas", *found.Spec.Replicas, "found.Status.AvailableReplicas", found.Status.AvailableReplicas)
-		if *found.Spec.Replicas != found.Status.AvailableReplicas {
-			reqLogger.Info("waiting for deployment's replicas to be satisfied ...",
-				"*found.Spec.Replicas", *found.Spec.Replicas, "found.Status.AvailableReplicas", found.Status.AvailableReplicas)
+			"*found.Spec.Replicas", *found.Spec.Replicas, "found.Status.ReadyReplicas", found.Status.ReadyReplicas)
+		if *found.Spec.Replicas != found.Status.ReadyReplicas {
 			reqLogger.Info("waiting for deployment's replicas to be satisfied ...")
 			return false, nil
 		}
