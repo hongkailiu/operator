@@ -122,6 +122,11 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 			return reconcile.Result{}, err
 		}
 
+		err = r.client.Get(context.TODO(), types.NamespacedName{Name: deployment.Name, Namespace: deployment.Namespace}, found)
+		if err != nil {
+			return reconcile.Result{}, fmt.Errorf("failed to get deployment: %v", err)
+		}
+
 		// Deployment created successfully - don't requeue
 		// return reconcile.Result{}, nil
 	} else if err != nil {
@@ -129,6 +134,16 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	} else {
 		// Deployment already exists - don't requeue
 		reqLogger.Info("Skip reconcile: Deployment already exists", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
+	}
+
+	// Ensure the deployment size is the same as the spec
+	size := instance.Spec.Size
+	if *found.Spec.Replicas != size {
+		found.Spec.Replicas = &size
+		err = r.client.Update(context.TODO(), found)
+		if err != nil {
+			return reconcile.Result{}, fmt.Errorf("failed to update deployment: %v", err)
+		}
 	}
 
 	reqLogger.Info("waiting 10 seconds ...")
@@ -152,16 +167,6 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	}
 	if err != nil {
 		return reconcile.Result{}, err
-	}
-
-	// Ensure the deployment size is the same as the spec
-	size := instance.Spec.Size
-	if *found.Spec.Replicas != size {
-		found.Spec.Replicas = &size
-		err = r.client.Update(context.TODO(), found)
-		if err != nil {
-			return reconcile.Result{}, fmt.Errorf("failed to update deployment: %v", err)
-		}
 	}
 
 	// Update the svtgo status with the pod names
