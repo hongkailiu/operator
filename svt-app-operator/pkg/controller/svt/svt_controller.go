@@ -3,6 +3,7 @@ package svt
 import (
 	"context"
 	"fmt"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"time"
 
 	appv1alpha1 "github.com/hongkailiu/operators/svt-app-operator/pkg/apis/app/v1alpha1"
@@ -59,6 +60,14 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	// TODO(user): Modify this to be the types you create that are owned by the primary resource
 	// Watch for changes to secondary resource Pods and requeue the owner SVT
 	err = c.Watch(&source.Kind{Type: &appsv1.Deployment{}}, &handler.EnqueueRequestForOwner{
+		IsController: true,
+		OwnerType:    &appv1alpha1.SVT{},
+	})
+	if err != nil {
+		return err
+	}
+
+	err = c.Watch(&source.Kind{Type: &corev1.Service{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
 		OwnerType:    &appv1alpha1.SVT{},
 	})
@@ -133,6 +142,33 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		reqLogger.Info("Skip reconcile: Deployment already exists", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
 	}
 
+	// Create the deployment if it doesn't exist
+	svc := serviceForSVT(instance)
+
+	// Set SVT instance as the owner and controller
+	if err := controllerutil.SetControllerReference(instance, svc, r.scheme); err != nil {
+		return reconcile.Result{}, err
+	}
+
+	// Check if this Pod already exists
+	foundSVC := &appsv1.Deployment{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: svc.Name, Namespace: svc.Namespace}, foundSVC)
+	if err != nil && errors.IsNotFound(err) {
+		reqLogger.Info("Creating a new Service", "Service.Namespace", svc.Namespace, "Service.Name", svc.Name)
+		err = r.client.Create(context.TODO(), svc)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+
+		// Service created successfully - don't requeue
+		// return reconcile.Result{}, nil
+	} else if err != nil {
+		return reconcile.Result{}, err
+	} else {
+		// Service already exists - don't requeue
+		reqLogger.Info("Skip reconcile: Service already exists", "Service.Namespace", foundSVC.Namespace, "Service.Name", foundSVC.Name)
+	}
+
 	// Ensure the deployment size is the same as the spec
 	size := instance.Spec.Size
 	if foundFlag && (*found.Spec.Replicas != size) {
@@ -186,7 +222,7 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	return reconcile.Result{}, nil
 }
 
-// deploymentForSVTGo returns a svtgo Deployment object
+// deploymentForSVT returns a svt Deployment object
 func deploymentForSVT(m *appv1alpha1.SVT) *appsv1.Deployment {
 	ls := labelsForSVT(m.Name)
 	replicas := m.Spec.Size
@@ -211,11 +247,11 @@ func deploymentForSVT(m *appv1alpha1.SVT) *appsv1.Deployment {
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Image: "quay.io/hongkailiu/test-go:http-0.0.13",
-						Name:  "svt",
+						Image:   "quay.io/hongkailiu/test-go:http-0.0.13",
+						Name:    "svt",
 						Command: []string{"/http"},
-						Args: []string{"start", "-v"},
-						Env: []corev1.EnvVar{{Name:"GIN_MODE", Value:"release"}},
+						Args:    []string{"start", "-v"},
+						Env:     []corev1.EnvVar{{Name: "GIN_MODE", Value: "release"}},
 						Ports: []corev1.ContainerPort{{
 							ContainerPort: 8080,
 							Name:          "http",
@@ -226,6 +262,30 @@ func deploymentForSVT(m *appv1alpha1.SVT) *appsv1.Deployment {
 		},
 	}
 	return dep
+}
+
+// serviceForSVT returns a svt Deployment object
+func serviceForSVT(m *appv1alpha1.SVT) *corev1.Service {
+	ls := labelsForSVT(m.Name)
+
+	svt := &corev1.Service{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "v1",
+			Kind:       "Service",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      m.Name,
+			Namespace: m.Namespace,
+		},
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{
+				{Port: 8080, Protocol: corev1.ProtocolTCP, TargetPort: intstr.IntOrString{Type: intstr.Int, IntVal: 8080}},
+			},
+			Type:     corev1.ServiceTypeClusterIP,
+			Selector: ls,
+		},
+	}
+	return svt
 }
 
 // labelsForSVTGo returns the labels for selecting the resources
