@@ -180,7 +180,7 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	//https://github.com/operator-framework/operator-sdk/blob/master/doc/user/client.md#updating-status-subresource
 	err = r.client.Status().Update(context.TODO(), instance)
 	if err != nil {
-		return reconcile.Result{}, fmt.Errorf("failed to update svtgo status: %v", err)
+		return reconcile.Result{}, fmt.Errorf("failed to update svt status: %v", err)
 	}
 
 	return reconcile.Result{}, nil
