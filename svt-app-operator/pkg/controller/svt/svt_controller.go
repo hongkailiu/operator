@@ -174,7 +174,7 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	podList := podList()
 	labelSelector := labels.SelectorFromSet(labelsForSVT(instance.Name))
 	listOps := &client.ListOptions{LabelSelector: labelSelector}
-	listOps.InNamespace(request.NamespacedName.Name)
+	//listOps.InNamespace(request.NamespacedName.Name)
 	err = r.client.List(context.TODO(), listOps, podList)
 	if err != nil {
 		return reconcile.Result{}, fmt.Errorf("failed to list pods: %v", err)
