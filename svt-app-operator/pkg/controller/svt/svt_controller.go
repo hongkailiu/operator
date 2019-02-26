@@ -131,6 +131,7 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		reqLogger.Info("Skip reconcile: Deployment already exists", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
 	}
 
+	reqLogger.Info("waiting 10 seconds ...")
 
 	fmt.Println(fmt.Sprintf("000"))
 	// wait 10 minutes for deployment's replicas to be satisfied
@@ -243,6 +244,7 @@ func podList() *corev1.PodList {
 func getPodNames(pods []corev1.Pod) []string {
 	var podNames []string
 	for _, pod := range pods {
+		fmt.Println(fmt.Sprintf("000=====pod.Name: %s", pod.Name))
 		podNames = append(podNames, pod.Name)
 	}
 	return podNames
