@@ -3,8 +3,7 @@ package svt
 import (
 	"context"
 	"fmt"
-	"k8s.io/apimachinery/pkg/util/intstr"
-	"time"
+	"reflect"
 
 	appv1alpha1 "github.com/hongkailiu/operators/svt-app-operator/pkg/apis/app/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -14,7 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -112,8 +111,6 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		// Error reading the object - requeue the request.
 		return reconcile.Result{}, err
 	}
-
-	// Create the deployment if it doesn't exist
 	deployment := deploymentForSVT(instance)
 
 	// Set SVT instance as the owner and controller
@@ -122,7 +119,6 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	}
 
 	// Check if this Pod already exists
-	foundFlag := false
 	found := &appsv1.Deployment{}
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: deployment.Name, Namespace: deployment.Namespace}, found)
 	if err != nil && errors.IsNotFound(err) {
@@ -131,14 +127,11 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		if err != nil {
 			return reconcile.Result{}, err
 		}
-
-		// Deployment created successfully - don't requeue
-		// return reconcile.Result{}, nil
+		return reconcile.Result{Requeue: true}, nil
 	} else if err != nil {
 		return reconcile.Result{}, err
 	} else {
 		// Deployment already exists - don't requeue
-		foundFlag = true
 		reqLogger.Info("Skip reconcile: Deployment already exists", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
 	}
 
@@ -159,9 +152,7 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		if err != nil {
 			return reconcile.Result{}, err
 		}
-
-		// Service created successfully - don't requeue
-		// return reconcile.Result{}, nil
+		return reconcile.Result{Requeue: true}, nil
 	} else if err != nil {
 		return reconcile.Result{}, err
 	} else {
@@ -171,54 +162,34 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 
 	// Ensure the deployment size is the same as the spec
 	size := instance.Spec.Size
-	if foundFlag && (*found.Spec.Replicas != size) {
+	if *found.Spec.Replicas != size {
 		found.Spec.Replicas = &size
 		err = r.client.Update(context.TODO(), found)
 		if err != nil {
 			return reconcile.Result{}, fmt.Errorf("failed to update deployment: %v", err)
 		}
-	}
-
-	// wait 10 minutes for deployment's replicas to be satisfied
-	err = wait.PollImmediate(10*time.Second, 10*time.Minute, func() (bool, error) {
-		err = r.client.Get(context.TODO(), types.NamespacedName{Name: deployment.Name, Namespace: deployment.Namespace}, found)
-		if err != nil {
-			return false, fmt.Errorf("failed to get deployment: %v", err)
-		}
-		reqLogger.Info("got values ...",
-			"*found.Spec.Replicas", *found.Spec.Replicas, "found.Status.AvailableReplicas", found.Status.AvailableReplicas)
-		if *found.Spec.Replicas != found.Status.AvailableReplicas {
-			reqLogger.Info("waiting for deployment's replicas to be satisfied ...",
-				"*found.Spec.Replicas", *found.Spec.Replicas, "found.Status.AvailableReplicas", found.Status.AvailableReplicas)
-			reqLogger.Info("waiting for deployment's replicas to be satisfied ...")
-			return false, nil
-		}
-		return true, nil
-	})
-	if err == wait.ErrWaitTimeout {
-		return reconcile.Result{}, fmt.Errorf("timed out waiting for deployment's replicas to be satisfied: %s", found.Name)
-	}
-	if err != nil {
-		return reconcile.Result{}, err
+		return reconcile.Result{Requeue: true}, nil
 	}
 
 	// Update the svtgo status with the pod names
 	podList := podList()
 	labelSelector := labels.SelectorFromSet(labelsForSVT(instance.Name))
-	listOps := &client.ListOptions{LabelSelector: labelSelector}
-	listOps.InNamespace(request.NamespacedName.Namespace)
+	listOps := &client.ListOptions{
+		Namespace:     request.NamespacedName.Namespace,
+		LabelSelector: labelSelector,}
 	err = r.client.List(context.TODO(), listOps, podList)
 	if err != nil {
 		return reconcile.Result{}, fmt.Errorf("failed to list pods: %v", err)
 	}
 	podNames := getPodNames(podList.Items)
-	instance.Status.Nodes = podNames
-	//https://github.com/operator-framework/operator-sdk/blob/master/doc/user/client.md#updating-status-subresource
-	err = r.client.Status().Update(context.TODO(), instance)
-	if err != nil {
-		return reconcile.Result{}, fmt.Errorf("failed to update svt status: %v", err)
+	if !reflect.DeepEqual(podNames, instance.Status.Nodes) {
+		instance.Status.Nodes = podNames
+		//https://github.com/operator-framework/operator-sdk/blob/master/doc/user/client.md#updating-status-subresource
+		err = r.client.Status().Update(context.TODO(), instance)
+		if err != nil {
+			return reconcile.Result{}, fmt.Errorf("failed to update svt status: %v", err)
+		}
 	}
-
 	return reconcile.Result{}, nil
 }
 
