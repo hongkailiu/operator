@@ -146,12 +146,8 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		}
 	}
 
-	//reqLogger.Info("waiting 10 seconds ...")
-	//time.Sleep(10*time.Second)
-
-	fmt.Println(fmt.Sprintf("000"))
 	// wait 10 minutes for deployment's replicas to be satisfied
-	err = wait.Poll(10*time.Second, 10*time.Minute, func() (bool, error) {
+	err = wait.PollImmediate(10*time.Second, 10*time.Minute, func() (bool, error) {
 		err = r.client.Get(context.TODO(), types.NamespacedName{Name: deployment.Name, Namespace: deployment.Namespace}, found)
 		if err != nil {
 			return false, fmt.Errorf("failed to get deployment: %v", err)
