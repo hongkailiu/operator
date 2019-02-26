@@ -152,8 +152,11 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		if err != nil {
 			return false, fmt.Errorf("failed to get deployment: %v", err)
 		}
-		fmt.Println(fmt.Sprintf("000=====instance.Status: %d===%d", *found.Spec.Replicas, found.Status.AvailableReplicas))
+		reqLogger.Info("got values ...",
+			"*found.Spec.Replicas", *found.Spec.Replicas, "found.Status.AvailableReplicas", found.Status.AvailableReplicas)
 		if *found.Spec.Replicas != found.Status.AvailableReplicas {
+			reqLogger.Info("waiting for deployment's replicas to be satisfied ...",
+				"*found.Spec.Replicas", *found.Spec.Replicas, "found.Status.AvailableReplicas", found.Status.AvailableReplicas)
 			reqLogger.Info("waiting for deployment's replicas to be satisfied ...")
 			return false, nil
 		}
@@ -170,7 +173,7 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	podList := podList()
 	labelSelector := labels.SelectorFromSet(labelsForSVT(instance.Name))
 	listOps := &client.ListOptions{LabelSelector: labelSelector}
-	//listOps.InNamespace(request.NamespacedName.Name)
+	listOps.InNamespace(request.NamespacedName.Namespace)
 	err = r.client.List(context.TODO(), listOps, podList)
 	if err != nil {
 		return reconcile.Result{}, fmt.Errorf("failed to list pods: %v", err)
