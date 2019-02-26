@@ -3,6 +3,7 @@ package svt
 import (
 	"context"
 	"fmt"
+	"time"
 
 	appv1alpha1 "github.com/hongkailiu/operators/svt-app-operator/pkg/apis/app/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -12,6 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -121,11 +123,6 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 			return reconcile.Result{}, err
 		}
 
-		err = r.client.Get(context.TODO(), types.NamespacedName{Name: deployment.Name, Namespace: deployment.Namespace}, found)
-		if err != nil {
-			return reconcile.Result{}, fmt.Errorf("failed to get deployment: %v", err)
-		}
-
 		// Deployment created successfully - don't requeue
 		// return reconcile.Result{}, nil
 	} else if err != nil {
@@ -133,6 +130,25 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	} else {
 		// Deployment already exists - don't requeue
 		reqLogger.Info("Skip reconcile: Deployment already exists", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
+	}
+
+	// wait 10 minutes for deployment's replicas to be satisfied
+	err = wait.Poll(10*time.Second, 10*time.Minute, func() (bool, error) {
+		err = r.client.Get(context.TODO(), types.NamespacedName{Name: deployment.Name, Namespace: deployment.Namespace}, found)
+		if err != nil {
+			return false, fmt.Errorf("failed to get deployment: %v", err)
+		}
+		if *found.Spec.Replicas != found.Status.Replicas {
+			reqLogger.Info("waiting for deployment's replicas to be satisfied ...")
+			return false, nil
+		}
+		return true, nil
+	})
+	if err == wait.ErrWaitTimeout {
+		return reconcile.Result{}, fmt.Errorf("timed out waiting for deployment's replicas to be satisfied: %s", found.Name)
+	}
+	if err != nil {
+		return reconcile.Result{}, err
 	}
 
 	// Ensure the deployment size is the same as the spec
@@ -146,31 +162,24 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	}
 
 	// Update the svtgo status with the pod names
-	reqLogger.Info("===001")
 	podList := podList()
 	labelSelector := labels.SelectorFromSet(labelsForSVT(instance.Name))
 	listOps := &client.ListOptions{LabelSelector: labelSelector}
+	listOps.InNamespace(request.NamespacedName.Name)
 	err = r.client.List(context.TODO(), listOps, podList)
-	reqLogger.Info(fmt.Sprintf("===002a%v", podList))
 	if err != nil {
 		return reconcile.Result{}, fmt.Errorf("failed to list pods: %v", err)
 	}
-	reqLogger.Info("===002")
 	podNames := getPodNames(podList.Items)
-	fmt.Println(fmt.Sprintf("=====podNames: %v", podNames))
-	reqLogger.Info("===003")
-	instance.Status.Nodes = []string{"111", "222"}
-	fmt.Println(fmt.Sprintf("=====instance.Status: %v", instance.Status))
-	reqLogger.Info("===006")
+	instance.Status.Nodes = podNames
+	//https://github.com/operator-framework/operator-sdk/blob/master/doc/user/client.md#updating-status-subresource
 	err = r.client.Status().Update(context.TODO(), instance)
-	reqLogger.Info("===007")
 	if err != nil {
 		return reconcile.Result{}, fmt.Errorf("failed to update svtgo status: %v", err)
 	}
 
 	return reconcile.Result{}, nil
 }
-
 
 // deploymentForSVTGo returns a svtgo Deployment object
 func deploymentForSVT(m *appv1alpha1.SVT) *appsv1.Deployment {
@@ -197,8 +206,8 @@ func deploymentForSVT(m *appv1alpha1.SVT) *appsv1.Deployment {
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Image:   "docker.io/hongkailiu/svt-go:http",
-						Name:    "svt",
+						Image: "docker.io/hongkailiu/svt-go:http",
+						Name:  "svt",
 						//Command: []string{"memcached", "-m=64", "-o", "modern", "-v"},
 						Ports: []corev1.ContainerPort{{
 							ContainerPort: 8080,
@@ -218,18 +227,6 @@ func labelsForSVT(name string) map[string]string {
 	return map[string]string{"app": "svt", "svt_cr": name}
 }
 
-// asOwner returns an OwnerReference set as the svtgo CR
-func asOwner(m *appv1alpha1.SVT) metav1.OwnerReference {
-	trueVar := true
-	return metav1.OwnerReference{
-		APIVersion: m.APIVersion,
-		Kind:       m.Kind,
-		Name:       m.Name,
-		UID:        m.UID,
-		Controller: &trueVar,
-	}
-}
-
 // podList returns a v1.PodList object
 func podList() *corev1.PodList {
 	return &corev1.PodList{
@@ -243,9 +240,7 @@ func podList() *corev1.PodList {
 // getPodNames returns the pod names of the array of pods passed in
 func getPodNames(pods []corev1.Pod) []string {
 	var podNames []string
-	fmt.Println(fmt.Sprintf("=====len(pods): %d", len(pods)))
 	for _, pod := range pods {
-		fmt.Println(fmt.Sprintf("=====pod.Name: %s", pod.Name))
 		podNames = append(podNames, pod.Name)
 	}
 	return podNames
