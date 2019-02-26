@@ -58,7 +58,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 
 	// TODO(user): Modify this to be the types you create that are owned by the primary resource
 	// Watch for changes to secondary resource Pods and requeue the owner SVT
-	err = c.Watch(&source.Kind{Type: &corev1.Pod{}}, &handler.EnqueueRequestForOwner{
+	err = c.Watch(&source.Kind{Type: &appsv1.Deployment{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
 		OwnerType:    &appv1alpha1.SVT{},
 	})
@@ -113,6 +113,7 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	}
 
 	// Check if this Pod already exists
+	foundFlag := false
 	found := &appsv1.Deployment{}
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: deployment.Name, Namespace: deployment.Namespace}, found)
 	if err != nil && errors.IsNotFound(err) {
@@ -122,23 +123,19 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 			return reconcile.Result{}, err
 		}
 
-		err = r.client.Get(context.TODO(), types.NamespacedName{Name: deployment.Name, Namespace: deployment.Namespace}, found)
-		if err != nil {
-			return reconcile.Result{}, fmt.Errorf("failed to get deployment: %v", err)
-		}
-
 		// Deployment created successfully - don't requeue
 		// return reconcile.Result{}, nil
 	} else if err != nil {
 		return reconcile.Result{}, err
 	} else {
 		// Deployment already exists - don't requeue
+		foundFlag = true
 		reqLogger.Info("Skip reconcile: Deployment already exists", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
 	}
 
 	// Ensure the deployment size is the same as the spec
 	size := instance.Spec.Size
-	if *found.Spec.Replicas != size {
+	if foundFlag && (*found.Spec.Replicas != size) {
 		found.Spec.Replicas = &size
 		err = r.client.Update(context.TODO(), found)
 		if err != nil {
