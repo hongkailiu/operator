@@ -249,7 +249,6 @@ func podList() *corev1.PodList {
 func getPodNames(pods []corev1.Pod) []string {
 	var podNames []string
 	for _, pod := range pods {
-		fmt.Println(fmt.Sprintf("000=====pod.Name: %s", pod.Name))
 		podNames = append(podNames, pod.Name)
 	}
 	return podNames
