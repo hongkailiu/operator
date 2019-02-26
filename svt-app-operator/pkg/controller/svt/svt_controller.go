@@ -146,8 +146,8 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		}
 	}
 
-	reqLogger.Info("waiting 10 seconds ...")
-	time.Sleep(10*time.Second)
+	//reqLogger.Info("waiting 10 seconds ...")
+	//time.Sleep(10*time.Second)
 
 	fmt.Println(fmt.Sprintf("000"))
 	// wait 10 minutes for deployment's replicas to be satisfied
