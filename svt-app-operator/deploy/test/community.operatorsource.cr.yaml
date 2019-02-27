@@ -1,0 +1,11 @@
+apiVersion: marketplace.redhat.com/v1alpha1
+kind: OperatorSource
+metadata:
+  name: community-operators
+  namespace: marketplace
+spec:
+  type: appregistry
+  endpoint: https://quay.io/cnr
+  registryNamespace: hongkailiu
+  displayName: "Community Operators"
+  publisher: "Red Hat"
