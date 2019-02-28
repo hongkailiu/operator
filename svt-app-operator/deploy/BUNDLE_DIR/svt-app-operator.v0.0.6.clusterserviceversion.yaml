@@ -1,7 +1,7 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
-  name: svt-app-operator.v0.0.3
+  name: svt-app-operator.v0.0.6
   namespace: placeholder
   annotations:
     capabilities: Seamless Upgrades
@@ -12,7 +12,7 @@ metadata:
     createdAt: 2019-01-01T11:59:59Z
     support: RH SVT
 spec:
-  version: 0.0.3
+  version: 0.0.6
   displayName: SVT Application
   provider:
     name: RH SVT
@@ -23,7 +23,7 @@ spec:
   maturity: alpha
   labels:
     olm-owner-enterprise-app: svt-app-operator
-    olm-status-descriptors: svt-app-operator.v0.0.3
+    olm-status-descriptors: svt-app-operator.v0.0.6
   description: SVT Tool in GoLang
   icon:
     - base64data: |-
@@ -146,7 +146,7 @@ spec:
     - type: MultiNamespace
       supported: false
     - type: AllNamespaces
-      supported: true
+      supported: false
   install:
     strategy: deployment
     spec:
