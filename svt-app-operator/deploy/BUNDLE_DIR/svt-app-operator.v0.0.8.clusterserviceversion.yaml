@@ -1,7 +1,7 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
-  name: svt-app-operator.v0.0.7
+  name: svt-app-operator.v0.0.8
   namespace: placeholder
   annotations:
     capabilities: Seamless Upgrades
@@ -12,7 +12,7 @@ metadata:
     createdAt: 2019-01-01T11:59:59Z
     support: RH SVT
 spec:
-  version: 0.0.7
+  version: 0.0.8
   displayName: SVT Application
   provider:
     name: RH SVT
@@ -23,7 +23,7 @@ spec:
   maturity: alpha
   labels:
     olm-owner-enterprise-app: svt-app-operator
-    olm-status-descriptors: svt-app-operator.v0.0.7
+    olm-status-descriptors: svt-app-operator.v0.0.8
   description: SVT Tool in GoLang
   icon:
     - base64data: |-
@@ -215,18 +215,16 @@ spec:
                     image: docker.io/hongkailiu/svt-app-operator:a012
                     imagePullPolicy: Always
                     env:
-                      - name: MY_POD_NAMESPACE
-                        valueFrom:
-                          fieldRef:
-                            fieldPath: metadata.namespace
                       - name: WATCH_NAMESPACE
                         valueFrom:
                           fieldRef:
-                            fieldPath: metadata.namespace
-                      - name: MY_POD_NAME
+                            fieldPath: metadata.annotations['olm.targetNamespaces']
+                      - name: POD_NAME
                         valueFrom:
                           fieldRef:
                             fieldPath: metadata.name
+                      - name: OPERATOR_NAME
+                        value: "svt-app-operator"
                 restartPolicy: Always
                 terminationGracePeriodSeconds: 5
                 serviceAccountName: svt-app-operator
