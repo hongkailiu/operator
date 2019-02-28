@@ -1,18 +1,18 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
-  name: svt-app-operator.v0.0.6
+  name: svt-app-operator.v0.0.7
   namespace: placeholder
   annotations:
     capabilities: Seamless Upgrades
     categories: "OpenShift Optional"
     certified: "false"
     description: An operator to run the SVT app
-    containerImage: quay.io/hongkailiu/svt-app-operator:a011
+    containerImage: docker.io/hongkailiu/svt-app-operator:a012
     createdAt: 2019-01-01T11:59:59Z
     support: RH SVT
 spec:
-  version: 0.0.6
+  version: 0.0.7
   displayName: SVT Application
   provider:
     name: RH SVT
@@ -23,7 +23,7 @@ spec:
   maturity: alpha
   labels:
     olm-owner-enterprise-app: svt-app-operator
-    olm-status-descriptors: svt-app-operator.v0.0.6
+    olm-status-descriptors: svt-app-operator.v0.0.7
   description: SVT Tool in GoLang
   icon:
     - base64data: |-
@@ -212,7 +212,7 @@ spec:
               spec:
                 containers:
                   - name: svt-app-operator-olm-owned
-                    image: quay.io/hongkailiu/svt-app-operator:a011
+                    image: docker.io/hongkailiu/svt-app-operator:a012
                     imagePullPolicy: Always
                     env:
                       - name: MY_POD_NAMESPACE
