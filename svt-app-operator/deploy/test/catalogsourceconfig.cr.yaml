@@ -1,8 +1,0 @@
-apiVersion: "marketplace.redhat.com/v1alpha1"
-kind: "CatalogSourceConfig"
-metadata:
-  name: "installed-my-community-operators"
-  namespace: "openshift-marketplace"
-spec:
-  targetNamespace: local-operators
-  packages: svt-app-operator
