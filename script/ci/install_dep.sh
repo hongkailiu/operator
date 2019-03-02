@@ -49,5 +49,5 @@ echo "installing operator-courier ..."
 pip3 install --upgrade pip
 echo "pip3 --version"
 pip3 --version
-pip3 install operator-courier
+sudo pip3 install operator-courier
 pip3 show operator-courier
