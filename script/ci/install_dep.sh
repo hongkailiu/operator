@@ -26,13 +26,16 @@ make install
 cd "${current_dir}" || exit 1
 
 ### https://blog.travis-ci.com/2017-10-26-running-kubernetes-on-travis-ci-with-minikube
-echo "installing and starting minikube"
+echo "installing minikube"
 curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && \
   chmod +x minikube && sudo mv minikube /usr/local/bin/
+###https://github.com/kubernetes/minikube/issues/2176
 export MINIKUBE_HOME=$HOME
 export CHANGE_MINIKUBE_NONE_USER=true
 export KUBECONFIG=$HOME/.kube/config
+echo "starting minikube"
 sudo minikube start --vm-driver=none
+echo "update-context ..."
 minikube update-context
 JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; \
   until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 1; done
