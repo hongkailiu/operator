@@ -31,7 +31,7 @@ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/miniku
   chmod +x minikube && sudo mv minikube /usr/local/bin/
 ###https://github.com/kubernetes/minikube/issues/2176
 #export MINIKUBE_HOME=$HOME
-export CHANGE_MINIKUBE_NONE_USER=true
+#export CHANGE_MINIKUBE_NONE_USER=true
 #export KUBECONFIG=$HOME/.kube/config
 echo "starting minikube"
 sudo minikube start --vm-driver=none --kubernetes-version=v1.13.3
@@ -40,7 +40,10 @@ ls -al "$HOME/.kube/config"
 cat "$HOME/.kube/config"
 sudo minikube update-context
 ls -al "$HOME/.minikube/"
-sudo chown -R "$HOME/.minikube/"
+readonly UUU="$(id -u -n)"
+readonly GGG="$(id -u -n)"
+echo "UUU=${UUU}; GGG=${GGG}"
+sudo chown -R "${UUU}:${GGG}" "$HOME/.minikube/"
 ls -al "$HOME/.minikube/"
 echo "waiting node to be ready ..."
 JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; \
