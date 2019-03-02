@@ -31,7 +31,7 @@ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/miniku
   chmod +x minikube && sudo mv minikube /usr/local/bin/
 ###https://github.com/kubernetes/minikube/issues/2176
 #export MINIKUBE_HOME=$HOME
-#export CHANGE_MINIKUBE_NONE_USER=true
+export CHANGE_MINIKUBE_NONE_USER=true
 #export KUBECONFIG=$HOME/.kube/config
 echo "starting minikube"
 sudo minikube start --vm-driver=none --kubernetes-version=v1.13.3
