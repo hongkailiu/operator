@@ -36,7 +36,7 @@ func TestSVT(t *testing.T) {
 	// run subtests
 	t.Run("svt-group", func(t *testing.T) {
 		t.Run("Cluster", svtCluster)
-		t.Run("Cluster2", svtCluster)
+		//t.Run("Cluster2", svtCluster)
 	})
 }
 
