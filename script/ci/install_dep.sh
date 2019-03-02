@@ -34,13 +34,14 @@ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/miniku
 export CHANGE_MINIKUBE_NONE_USER=true
 #export KUBECONFIG=$HOME/.kube/config
 echo "starting minikube"
-sudo minikube start --vm-driver=none
+sudo minikube start --vm-driver=none --kubernetes-version=v1.13.3
 echo "minikube update-context ..."
 ls -al "$HOME/.kube/config"
 cat "$HOME/.kube/config"
-kubectl config current-context
 sudo minikube update-context
-kubectl config current-context
+ls -al "$HOME/.minikube/"
+sudo chown -R "$HOME/.minikube/"
+ls -al "$HOME/.minikube/"
 echo "waiting node to be ready ..."
 JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; \
   until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do echo "kubectl get node"; kubectl get node; sleep 1; done
