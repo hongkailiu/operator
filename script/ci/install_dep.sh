@@ -47,5 +47,5 @@ sudo chown -R "${UUU}:${GGG}" "$HOME/.minikube/"
 ls -al "$HOME/.minikube/"
 echo "waiting node to be ready ..."
 JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; \
-  until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do echo "kubectl get node"; kubectl get node; sleep 1; done
+  until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do echo "sleeping 1 sec"; kubectl get node; sleep 1; done
 
