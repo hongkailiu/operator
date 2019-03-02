@@ -37,7 +37,9 @@ echo "starting minikube"
 sudo minikube start --vm-driver=none
 echo "minikube update-context ..."
 ls -al "${KUBECONFIG}"
+kubectl config current-context
 sudo minikube update-context
+kubectl config current-context
 JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; \
   until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 1; done
 
