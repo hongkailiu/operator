@@ -41,7 +41,7 @@ cat "$HOME/.kube/config"
 kubectl config current-context
 sudo minikube update-context
 kubectl config current-context
-echo "waiting ready ..."
+echo "waiting node to be ready ..."
 JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; \
-  until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 1; done
+  until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do echo "kubectl get node"; sleep 1; done
 
