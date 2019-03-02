@@ -47,5 +47,5 @@ JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.ty
 
 echo "installing operator-courier ..."
 pip3 --version
-sudo pip3 install operator-courier
+sudo -H pip3 install operator-courier
 pip3 show operator-courier
