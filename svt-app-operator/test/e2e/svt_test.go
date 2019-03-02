@@ -14,6 +14,7 @@ import (
 	"golang.org/x/net/context"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/wait"
 )
 
 var (
@@ -72,13 +73,9 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 	}
 
 	found := &operator.SVT{}
-	err = f.Client.Get(context.TODO(), types.NamespacedName{Name: "example-svt", Namespace: namespace}, found)
+	err = waitForSVT(f, "example-svt", namespace, found, 3)
 	if err != nil {
 		return err
-	}
-
-	if len(found.Status.Nodes) != 3 {
-		return fmt.Errorf("expecting found.Status.Nodes = 3, but it is %d", len(found.Status.Nodes))
 	}
 
 	err = f.Client.Get(goctx.TODO(), types.NamespacedName{Name: "example-svt", Namespace: namespace}, exampleSVT)
@@ -98,14 +95,9 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 		return err
 	}
 
-	found = &operator.SVT{}
-	err = f.Client.Get(context.TODO(), types.NamespacedName{Name: "example-svt", Namespace: namespace}, found)
+	err = waitForSVT(f, "example-svt", namespace, found, 2)
 	if err != nil {
 		return err
-	}
-
-	if len(found.Status.Nodes) != 2 {
-		return fmt.Errorf("expecting found.Status.Nodes = 2, but it is %d", len(found.Status.Nodes))
 	}
 
 	return nil
@@ -135,4 +127,22 @@ func svtCluster(t *testing.T) {
 	if err = svtScaleTest(t, f, ctx); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func waitForSVT(f *framework.Framework, svtName string, namespace string, found *operator.SVT, l int) error {
+	// wait 10 minutes for len(svt.Status.Nodes) to be satisfied
+	err := wait.PollImmediate(10*time.Second, 10*time.Minute, func() (bool, error) {
+		err := f.Client.Get(context.TODO(), types.NamespacedName{Name: svtName, Namespace: namespace}, found)
+		if err != nil {
+			return false, err
+		}
+		if len(found.Status.Nodes) != l {
+			return false, nil
+		}
+		return true, nil
+	})
+	if err == wait.ErrWaitTimeout {
+		return fmt.Errorf("timed out waiting for len(svt.Status.Nodes) to be satisfied (%d): %d", l, len(found.Status.Nodes))
+	}
+	return err
 }
