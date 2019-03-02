@@ -7,6 +7,7 @@ ci-test:
 ci-install:
 	git --version
 	go version
+	sudo apt install snapd
 	snap version
 	kubectl version
 	docker version
