@@ -29,7 +29,8 @@ cd "${current_dir}" || exit 1
 echo "installing and starting minikube"
 curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && \
   chmod +x minikube && sudo mv minikube /usr/local/bin/
-sudo minikube start --vm-driver=none --kubernetes-version=v1.7.0
+export CHANGE_MINIKUBE_NONE_USER=true
+sudo minikube start --vm-driver=none
 minikube update-context
 JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; \
   until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 1; done
