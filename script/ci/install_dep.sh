@@ -35,7 +35,8 @@ export CHANGE_MINIKUBE_NONE_USER=true
 export KUBECONFIG=$HOME/.kube/config
 echo "starting minikube"
 sudo minikube start --vm-driver=none
-echo "update-context ..."
+echo "minikube update-context ..."
+ls -al "${KUBECONFIG}"
 minikube update-context
 JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; \
   until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 1; done
