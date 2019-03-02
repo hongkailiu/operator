@@ -131,7 +131,7 @@ func svtCluster(t *testing.T) {
 
 func waitForSVT(f *framework.Framework, svtName string, namespace string, found *operator.SVT, l int) error {
 	// wait 10 minutes for len(svt.Status.Nodes) to be satisfied
-	err := wait.PollImmediate(10*time.Second, 10*time.Minute, func() (bool, error) {
+	err := wait.PollImmediate(10*time.Second, 3*time.Minute, func() (bool, error) {
 		err := f.Client.Get(context.TODO(), types.NamespacedName{Name: svtName, Namespace: namespace}, found)
 		if err != nil {
 			return false, err
