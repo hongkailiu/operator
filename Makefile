@@ -7,15 +7,18 @@ ci-test:
 ci-install:
 	git --version
 	go version
-	#snap --version
-	echo $${PATH}
-	./script/ci/install_dep.sh
-	kubectl version --client=true
-	docker version
-	dep version
-	echo "$${GOPATH}"
 	python -V
 	pip --version
+	python3 -V
+	pip3 --version
+	docker version
+	echo $${PATH}
+	echo "$${GOPATH}"
+	./script/ci/install_dep.sh
+	kubectl version --client=true
+	dep version
+
+
 
 
 
