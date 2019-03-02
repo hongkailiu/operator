@@ -99,8 +99,8 @@ func svtCluster(t *testing.T) {
 	}
 	// get global framework variables
 	f := framework.Global
-	// wait for svt-operator to be ready
-	err = e2eutil.WaitForDeployment(t, f.KubeClient, namespace, "svt-operator", 1, retryInterval, timeout)
+	// wait for svt-app-operator to be ready
+	err = e2eutil.WaitForDeployment(t, f.KubeClient, namespace, "svt-app-operator", 1, retryInterval, timeout)
 	if err != nil {
 		t.Fatal(err)
 	}
