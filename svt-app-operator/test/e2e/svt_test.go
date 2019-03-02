@@ -6,11 +6,12 @@ import (
 	"testing"
 	"time"
 
-	apis "github.com/hongkailiu/operators/svt-app-operator/pkg/apis"
+	"github.com/hongkailiu/operators/svt-app-operator/pkg/apis"
 	operator "github.com/hongkailiu/operators/svt-app-operator/pkg/apis/app/v1alpha1"
 
 	framework "github.com/operator-framework/operator-sdk/pkg/test"
 	"github.com/operator-framework/operator-sdk/pkg/test/e2eutil"
+	"golang.org/x/net/context"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 )
@@ -70,6 +71,16 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 		return err
 	}
 
+	found := &operator.SVT{}
+	err = f.Client.Get(context.TODO(), types.NamespacedName{Name: "example-svt", Namespace: namespace}, found)
+	if err != nil {
+		return err
+	}
+
+	if len(found.Status.Nodes) != 3 {
+		return fmt.Errorf("expecting found.Status.Nodes = 3, but it is %d", len(found.Status.Nodes))
+	}
+
 	err = f.Client.Get(goctx.TODO(), types.NamespacedName{Name: "example-svt", Namespace: namespace}, exampleSVT)
 	if err != nil {
 		return err
@@ -81,7 +92,23 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 	}
 
 	// wait for example-svt to reach 4 replicas
-	return e2eutil.WaitForDeployment(t, f.KubeClient, namespace, "example-svt", 2, retryInterval, timeout)
+	err = e2eutil.WaitForDeployment(t, f.KubeClient, namespace, "example-svt", 2, retryInterval, timeout)
+
+	if err != nil {
+		return err
+	}
+
+	found = &operator.SVT{}
+	err = f.Client.Get(context.TODO(), types.NamespacedName{Name: "example-svt", Namespace: namespace}, found)
+	if err != nil {
+		return err
+	}
+
+	if len(found.Status.Nodes) != 2 {
+		return fmt.Errorf("expecting found.Status.Nodes = 2, but it is %d", len(found.Status.Nodes))
+	}
+
+	return nil
 }
 
 func svtCluster(t *testing.T) {
