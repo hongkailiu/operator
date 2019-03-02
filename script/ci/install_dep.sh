@@ -36,7 +36,7 @@ export CHANGE_MINIKUBE_NONE_USER=true
 echo "starting minikube"
 sudo minikube start --vm-driver=none
 echo "minikube update-context ..."
-ls -al "${KUBECONFIG}"
+ls -al "$HOME/.kube/config"
 kubectl config current-context
 sudo minikube update-context
 kubectl config current-context
