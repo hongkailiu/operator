@@ -46,5 +46,8 @@ JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.ty
   until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do echo "sleeping 1 sec"; kubectl get node; sleep 1; done
 
 echo "installing operator-courier ..."
+pip3 install --upgrade pip
+echo "pip3 --version"
+pip3 --version
 pip3 install operator-courier
 pip3 show operator-courier
