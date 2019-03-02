@@ -7,8 +7,7 @@ ci-test:
 ci-install:
 	git --version
 	go version
-	sudo apt install snapd
-	snap version
+	echo $$PATH
 	kubectl version
 	docker version
 	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
