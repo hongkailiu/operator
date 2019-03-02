@@ -10,7 +10,7 @@ ci-install:
 	#snap --version
 	echo $$PATH
 	./script/ci/install_dep.sh
-	kubectl version
+	kubectl version --client=true
 	docker version
 	dep version
 	echo "$${GOPATH}"
