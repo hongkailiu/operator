@@ -11,7 +11,6 @@ ci-install:
 	./script/ci/install_dep.sh
 	kubectl version
 	docker version
-	#curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 	dep version
 	echo "$${GOPATH}"
 	./script/ci/install_dep.sh
