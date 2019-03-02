@@ -7,6 +7,7 @@ ci-test:
 ci-install:
 	git --version
 	go version
+	snap version
 	kubectl version
 	docker version
 	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
