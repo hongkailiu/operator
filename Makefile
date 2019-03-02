@@ -7,7 +7,7 @@ ci-test:
 ci-install:
 	git --version
 	go version
-	snape --version
+	snap --version
 	echo $$PATH
 	./script/ci/install_dep.sh
 	kubectl version
