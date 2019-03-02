@@ -14,6 +14,8 @@ ci-install:
 	docker version
 	dep version
 	echo "$${GOPATH}"
+	python -V
+	pip --version
 
 
 
