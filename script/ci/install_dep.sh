@@ -14,7 +14,7 @@ sudo mv -v ./kubectl /usr/local/bin/
 echo "installing dep"
 curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
-echo "installing operator-framework"
+echo "installing operator-framework ..."
 current_dir="$(pwd)"
 mkdir -p ${GOPATH}/src/github.com/operator-framework
 cd ${GOPATH}/src/github.com/operator-framework
@@ -26,7 +26,7 @@ make install
 cd "${current_dir}" || exit 1
 
 ### https://blog.travis-ci.com/2017-10-26-running-kubernetes-on-travis-ci-with-minikube
-echo "installing minikube"
+echo "installing minikube ..."
 curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && \
   chmod +x minikube && sudo mv minikube /usr/local/bin/
 export CHANGE_MINIKUBE_NONE_USER=true
@@ -45,3 +45,6 @@ echo "waiting node to be ready ..."
 JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; \
   until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do echo "sleeping 1 sec"; kubectl get node; sleep 1; done
 
+echo "installing operator-courier ..."
+pip3 install operator-courier
+pip3 show operator-courier
