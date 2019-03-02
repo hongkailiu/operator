@@ -8,12 +8,13 @@ ci-install:
 	git --version
 	go version
 	echo $$PATH
+	./script/ci/install_dep.sh
 	kubectl version
 	docker version
-	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+	#curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 	dep version
 	echo "$${GOPATH}"
-	install_operator_sdk.sh
+	./script/ci/install_dep.sh
 
 
 .PHONY : ci-script
