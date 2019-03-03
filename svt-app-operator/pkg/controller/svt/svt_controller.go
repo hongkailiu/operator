@@ -210,6 +210,9 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		return reconcile.Result{}, fmt.Errorf("failed to list pods: %v", err)
 	}
 	podNames := getPodNames(podList.Items)
+	if int32(len(podNames)) != size {
+		return reconcile.Result{Requeue: true}, fmt.Errorf("int32(len(podNames)) != size: %d, %d", int32(len(podNames)), size)
+	}
 
 	newSearchInstance := &appv1alpha1.SVT{}
 	err = r.client.Get(context.TODO(), request.NamespacedName, newSearchInstance)
