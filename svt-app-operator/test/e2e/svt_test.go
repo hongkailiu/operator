@@ -77,13 +77,13 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 	if err != nil {
 		return err
 	}
-	found.Spec.Size = 2
+	found.Spec.Size = 1
 	err = f.Client.Update(goctx.TODO(), found)
 	if err != nil {
 		return err
 	}
 	found.Spec.Size = 0
-	err = waitForSVT(f, "example-svt", namespace, found, 2)
+	err = waitForSVT(f, "example-svt", namespace, found, 1)
 	if err != nil {
 		return err
 	}
@@ -92,13 +92,13 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 	if err != nil {
 		return err
 	}
-	found.Spec.Size = 1
+	found.Spec.Size = 2
 	err = f.Client.Update(goctx.TODO(), found)
 	if err != nil {
 		return err
 	}
 	found.Spec.Size = 0
-	err = waitForSVT(f, "example-svt", namespace, found, 1)
+	err = waitForSVT(f, "example-svt", namespace, found, 2)
 	if err != nil {
 		return err
 	}
