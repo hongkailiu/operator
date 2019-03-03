@@ -177,8 +177,6 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	// wait 10 minutes for deployment's replicas to be satisfied
 	// without this wait, it would work but we have to wait for the event as below (it usually takes about 10 minutes to see it on ocp 3.11/4.0)
 	// W0303 11:38:57.410409   16306 reflector.go:270] sigs.k8s.io/controller-runtime/pkg/cache/internal/informers_map.go:126: watch of *v1.Deployment ended with: The resourceVersion for the provided watch is too old.
-	// however, it seems pretty quick on travis-ci with minikube v0.34.1 --kubernetes-version=v1.13.3
-	// we choose to add it here just to make sure
 	err = wait.PollImmediate(10*time.Second, 10*time.Minute, func() (bool, error) {
 		err = r.client.Get(context.TODO(), types.NamespacedName{Name: deployment.Name, Namespace: deployment.Namespace}, found)
 		if err != nil {
