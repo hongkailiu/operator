@@ -16,7 +16,7 @@ spec:
       containers:
         - name: svt-app-operator
           # Replace this with the built image name
-          image: docker.io/hongkailiu/svt-app-operator:a012
+          image: docker.io/hongkailiu/svt-app-operator:a013-355557f
           command:
           - svt-app-operator
           imagePullPolicy: IfNotPresent
