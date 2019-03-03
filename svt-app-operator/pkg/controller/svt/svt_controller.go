@@ -212,17 +212,11 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		return reconcile.Result{Requeue: true}, fmt.Errorf("int32(len(podNames)) != size: %d, %d", int32(len(podNames)), size)
 	}
 
-	newSearchInstance := &appv1alpha1.SVT{}
-	err = r.client.Get(context.TODO(), request.NamespacedName, newSearchInstance)
-	if err != nil {
-		return reconcile.Result{}, err
-	}
-
-	reqLogger.Info("000===", "len(podNames)", len(podNames), "len(newSearchInstance.Status.Nodes)", len(newSearchInstance.Status.Nodes))
-	if !reflect.DeepEqual(podNames, newSearchInstance.Status.Nodes) {
-		newSearchInstance.Status.Nodes = podNames
+	reqLogger.Info("000===", "len(podNames)", len(podNames), "len(instance.Status.Nodes)", len(instance.Status.Nodes))
+	if !reflect.DeepEqual(podNames, instance.Status.Nodes) {
+		instance.Status.Nodes = podNames
 		//https://github.com/operator-framework/operator-sdk/blob/master/doc/user/client.md#updating-status-subresource
-		err = r.client.Status().Update(context.TODO(), newSearchInstance)
+		err = r.client.Status().Update(context.TODO(), instance)
 		if err != nil {
 			return reconcile.Result{Requeue: true}, fmt.Errorf("failed to update svt status: %v", err)
 		}
