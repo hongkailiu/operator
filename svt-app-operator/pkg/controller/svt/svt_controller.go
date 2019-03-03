@@ -182,6 +182,7 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		return reconcile.Result{}, fmt.Errorf("failed to list pods: %v", err)
 	}
 	podNames := getPodNames(podList.Items)
+	reqLogger.Info("000===", "len(podNames)", len(podNames), "len(instance.Status.Nodes)", len(instance.Status.Nodes))
 	if !reflect.DeepEqual(podNames, instance.Status.Nodes) {
 		instance.Status.Nodes = podNames
 		//https://github.com/operator-framework/operator-sdk/blob/master/doc/user/client.md#updating-status-subresource
