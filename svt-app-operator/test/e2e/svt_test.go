@@ -92,7 +92,7 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 	if err != nil {
 		return err
 	}
-	exampleSVT.Spec.Size = 1
+	found.Spec.Size = 1
 	err = f.Client.Update(goctx.TODO(), found)
 	if err != nil {
 		return err
