@@ -19,7 +19,7 @@ spec:
           image: docker.io/hongkailiu/svt-app-operator:a012
           command:
           - svt-app-operator
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           env:
             - name: WATCH_NAMESPACE
               valueFrom:

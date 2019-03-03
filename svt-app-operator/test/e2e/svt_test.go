@@ -66,11 +66,6 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 	if err != nil {
 		return err
 	}
-	// wait for example-svt to reach 3 replicas
-	err = e2eutil.WaitForDeployment(t, f.KubeClient, namespace, "example-svt", 3, retryInterval, timeout)
-	if err != nil {
-		return err
-	}
 
 	found := &operator.SVT{}
 	err = waitForSVT(f, "example-svt", namespace, found, 3)
@@ -78,23 +73,31 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 		return err
 	}
 
-	err = f.Client.Get(goctx.TODO(), types.NamespacedName{Name: "example-svt", Namespace: namespace}, exampleSVT)
+	err = f.Client.Get(goctx.TODO(), types.NamespacedName{Name: "example-svt", Namespace: namespace}, found)
 	if err != nil {
 		return err
 	}
-	exampleSVT.Spec.Size = 2
-	err = f.Client.Update(goctx.TODO(), exampleSVT)
+	found.Spec.Size = 1
+	err = f.Client.Update(goctx.TODO(), found)
+	if err != nil {
+		return err
+	}
+	found.Spec.Size = 0
+	err = waitForSVT(f, "example-svt", namespace, found, 1)
 	if err != nil {
 		return err
 	}
 
-	// wait for example-svt to reach 4 replicas
-	err = e2eutil.WaitForDeployment(t, f.KubeClient, namespace, "example-svt", 2, retryInterval, timeout)
-
+	err = f.Client.Get(goctx.TODO(), types.NamespacedName{Name: "example-svt", Namespace: namespace}, found)
 	if err != nil {
 		return err
 	}
-
+	found.Spec.Size = 2
+	err = f.Client.Update(goctx.TODO(), found)
+	if err != nil {
+		return err
+	}
+	found.Spec.Size = 0
 	err = waitForSVT(f, "example-svt", namespace, found, 2)
 	if err != nil {
 		return err
@@ -136,6 +139,7 @@ func waitForSVT(f *framework.Framework, svtName string, namespace string, found 
 		if err != nil {
 			return false, err
 		}
+		fmt.Println(fmt.Sprintf("%s: len(found.Status.Nodes): %d; l: %d", time.Now().Format(time.RFC3339), len(found.Status.Nodes), l))
 		if len(found.Status.Nodes) != l {
 			return false, nil
 		}

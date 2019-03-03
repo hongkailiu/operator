@@ -175,6 +175,10 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 	}
 
 	// wait 10 minutes for deployment's replicas to be satisfied
+	// without this wait, it would work but we have to wait for the event as below (it usually takes about 10 minutes to see it on ocp 3.11/4.0)
+	// W0303 11:38:57.410409   16306 reflector.go:270] sigs.k8s.io/controller-runtime/pkg/cache/internal/informers_map.go:126: watch of *v1.Deployment ended with: The resourceVersion for the provided watch is too old.
+	// however, it seems pretty quick on travis-ci with minikube v0.34.1 --kubernetes-version=v1.13.3
+	// we choose to add it here just to make sure
 	err = wait.PollImmediate(10*time.Second, 10*time.Minute, func() (bool, error) {
 		err = r.client.Get(context.TODO(), types.NamespacedName{Name: deployment.Name, Namespace: deployment.Namespace}, found)
 		if err != nil {
@@ -206,10 +210,21 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		return reconcile.Result{}, fmt.Errorf("failed to list pods: %v", err)
 	}
 	podNames := getPodNames(podList.Items)
-	if !reflect.DeepEqual(podNames, instance.Status.Nodes) {
-		instance.Status.Nodes = podNames
+	if int32(len(podNames)) != size {
+		return reconcile.Result{Requeue: true}, fmt.Errorf("int32(len(podNames)) != size: %d, %d", int32(len(podNames)), size)
+	}
+
+	newSearchInstance := &appv1alpha1.SVT{}
+	err = r.client.Get(context.TODO(), request.NamespacedName, newSearchInstance)
+	if err != nil {
+		return reconcile.Result{}, err
+	}
+
+	reqLogger.Info("000===", "len(podNames)", len(podNames), "len(newSearchInstance.Status.Nodes)", len(newSearchInstance.Status.Nodes))
+	if !reflect.DeepEqual(podNames, newSearchInstance.Status.Nodes) {
+		newSearchInstance.Status.Nodes = podNames
 		//https://github.com/operator-framework/operator-sdk/blob/master/doc/user/client.md#updating-status-subresource
-		err = r.client.Status().Update(context.TODO(), instance)
+		err = r.client.Status().Update(context.TODO(), newSearchInstance)
 		if err != nil {
 			return reconcile.Result{Requeue: true}, fmt.Errorf("failed to update svt status: %v", err)
 		}
