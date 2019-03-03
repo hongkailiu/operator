@@ -3,6 +3,9 @@ package svt
 import (
 	"context"
 	"fmt"
+	"reflect"
+	"time"
+
 	appv1alpha1 "github.com/hongkailiu/operators/svt-app-operator/pkg/apis/app/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -12,7 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	"reflect"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -169,6 +172,27 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 			return reconcile.Result{}, fmt.Errorf("failed to update deployment: %v", err)
 		}
 		return reconcile.Result{Requeue: true}, nil
+	}
+
+	// wait 10 minutes for deployment's replicas to be satisfied
+	err = wait.PollImmediate(10*time.Second, 10*time.Minute, func() (bool, error) {
+		err = r.client.Get(context.TODO(), types.NamespacedName{Name: deployment.Name, Namespace: deployment.Namespace}, found)
+		if err != nil {
+			return false, fmt.Errorf("failed to get deployment: %v", err)
+		}
+		reqLogger.Info("got values ...",
+			"*found.Spec.Replicas", *found.Spec.Replicas, "found.Status.ReadyReplicas", found.Status.ReadyReplicas)
+		if *found.Spec.Replicas != found.Status.ReadyReplicas {
+			reqLogger.Info("waiting for deployment's replicas to be satisfied ...")
+			return false, nil
+		}
+		return true, nil
+	})
+	if err == wait.ErrWaitTimeout {
+		return reconcile.Result{}, fmt.Errorf("timed out waiting for deployment's replicas to be satisfied: %s", found.Name)
+	}
+	if err != nil {
+		return reconcile.Result{}, err
 	}
 
 	// Update the svtgo status with the pod names
