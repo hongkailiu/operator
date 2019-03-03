@@ -208,6 +208,7 @@ func (r *ReconcileSVT) Reconcile(request reconcile.Request) (reconcile.Result, e
 		return reconcile.Result{}, fmt.Errorf("failed to list pods: %v", err)
 	}
 	podNames := getPodNames(podList.Items)
+	//this should not be necessary but it happens to e2e tests sometimes on ci and ocp clusters
 	if int32(len(podNames)) != size {
 		return reconcile.Result{Requeue: true}, fmt.Errorf("int32(len(podNames)) != size: %d, %d", int32(len(podNames)), size)
 	}
