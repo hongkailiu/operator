@@ -102,6 +102,8 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 	if err != nil {
 		return err
 	}
+	// TODO check the deployed svc on travis-ci only
+	// might need a containerized solution if jump node is supported
 
 	return nil
 }
