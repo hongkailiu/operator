@@ -139,7 +139,7 @@ func waitForSVT(f *framework.Framework, svtName string, namespace string, found 
 		if err != nil {
 			return false, err
 		}
-		fmt.Println(fmt.Sprintf("len(found.Status.Nodes): %d; l: %d", len(found.Status.Nodes), l))
+		fmt.Println(fmt.Sprintf("%s: len(found.Status.Nodes): %d; l: %d", time.Now().Format(time.RFC3339), len(found.Status.Nodes), l))
 		if len(found.Status.Nodes) != l {
 			return false, nil
 		}
