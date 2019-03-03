@@ -100,6 +100,20 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 		return err
 	}
 
+	err = f.Client.Get(goctx.TODO(), types.NamespacedName{Name: "example-svt", Namespace: namespace}, exampleSVT)
+	if err != nil {
+		return err
+	}
+	exampleSVT.Spec.Size = 1
+	err = f.Client.Update(goctx.TODO(), exampleSVT)
+	if err != nil {
+		return err
+	}
+	err = waitForSVT(f, "example-svt", namespace, found, 1)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
