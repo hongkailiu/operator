@@ -3,15 +3,18 @@ package e2e
 import (
 	goctx "context"
 	"fmt"
+	"net/http"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/hongkailiu/operators/svt-app-operator/pkg/apis"
 	operator "github.com/hongkailiu/operators/svt-app-operator/pkg/apis/app/v1alpha1"
-
+	myhttp "github.com/hongkailiu/test-go/pkg/http"
 	framework "github.com/operator-framework/operator-sdk/pkg/test"
 	"github.com/operator-framework/operator-sdk/pkg/test/e2eutil"
 	"golang.org/x/net/context"
+	"gopkg.in/resty.v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -104,6 +107,27 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 	}
 	// TODO check the deployed svc on travis-ci only
 	// might need a containerized solution if jump node is supported
+
+	if os.Getenv("CI") == "true" {
+		resp, err := resty.R().Get("http://my-svc.my-namespace.svc.cluster.local:8080")
+		if err != nil {
+			return fmt.Errorf("get service with err: %v", err)
+		}
+		if resp.StatusCode() != http.StatusOK {
+			return fmt.Errorf("get service with resp.StatusCode(): %d", resp.StatusCode())
+		}
+		fmt.Println(fmt.Sprintf("resp.Result(): %v", resp.Result()))
+
+		switch resp.Result().(type) {
+		case myhttp.Info:
+			info := resp.Result().(myhttp.Info)
+			fmt.Println(fmt.Sprintf("info.Version: %s", info.Version))
+		default:
+			return fmt.Errorf("unknown resp.Result(): %v", resp.Result())
+		}
+	} else {
+		fmt.Println(fmt.Sprintf("${CI}!=true, skiping svc checking"))
+	}
 
 	return nil
 }
