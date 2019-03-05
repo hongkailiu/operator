@@ -129,13 +129,8 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 		}
 		fmt.Println(fmt.Sprintf("resp.Result(): %v", resp.Result()))
 
-		switch resp.Result().(type) {
-		case info.Info:
-			info := resp.Result().(*info.Info)
-			fmt.Println(fmt.Sprintf("info.Version: %s", info.Version))
-		default:
-			return fmt.Errorf("unknown resp.Result(): %v", resp.Result())
-		}
+		info := resp.Result().(*info.Info)
+		fmt.Println(fmt.Sprintf("info.Version: %s", info.Version))
 	} else {
 		fmt.Println(fmt.Sprintf("${CI}!=true, skiping svc checking"))
 	}
