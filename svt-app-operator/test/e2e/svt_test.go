@@ -120,7 +120,7 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 		//url := fmt.Sprintf("http://%s:8080", foundSVC.Spec.ClusterIP)
 		url := "https://web-hongkliu-run.b542.starter-us-east-2a.openshiftapps.com/"
 		fmt.Println(fmt.Sprintf("accessing url: %s", url))
-		resp, err := resty.R().Get(url)
+		resp, err := resty.R().SetResult(info.Info{}).Get(url)
 		if err != nil {
 			return fmt.Errorf("get service with err: %v", err)
 		}
@@ -131,7 +131,7 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 
 		switch resp.Result().(type) {
 		case info.Info:
-			info := resp.Result().(info.Info)
+			info := resp.Result().(*info.Info)
 			fmt.Println(fmt.Sprintf("info.Version: %s", info.Version))
 		default:
 			return fmt.Errorf("unknown resp.Result(): %v", resp.Result())
