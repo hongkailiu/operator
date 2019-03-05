@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/securecookie"
 	"github.com/hongkailiu/test-go/pkg/http/db"
+	"github.com/hongkailiu/test-go/pkg/http/info"
 	"github.com/hongkailiu/test-go/pkg/http/model"
 	"github.com/hongkailiu/test-go/pkg/random"
 	"github.com/hongkailiu/test-go/pkg/swagger/swagger/models"
@@ -110,7 +111,7 @@ func Run() {
 	r.Use(sessions.Sessions("my_session", store))
 
 	r.GET("/", func(c *gin.Context) {
-		infoP := getInfo()
+		infoP := info.GetInfo()
 		contentType := c.ContentType()
 		log.WithFields(log.Fields{"c.ContentType()": contentType}).Debug("root path")
 		if strings.Contains(contentType, "yaml") {

@@ -10,7 +10,7 @@ import (
 
 	"github.com/hongkailiu/operators/svt-app-operator/pkg/apis"
 	operator "github.com/hongkailiu/operators/svt-app-operator/pkg/apis/app/v1alpha1"
-	myhttp "github.com/hongkailiu/test-go/pkg/http"
+	"github.com/hongkailiu/test-go/pkg/http/info"
 	framework "github.com/operator-framework/operator-sdk/pkg/test"
 	"github.com/operator-framework/operator-sdk/pkg/test/e2eutil"
 	"golang.org/x/net/context"
@@ -129,8 +129,8 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 		fmt.Println(fmt.Sprintf("resp.Result(): %v", resp.Result()))
 
 		switch resp.Result().(type) {
-		case myhttp.Info:
-			info := resp.Result().(myhttp.Info)
+		case info.Info:
+			info := resp.Result().(info.Info)
 			fmt.Println(fmt.Sprintf("info.Version: %s", info.Version))
 		default:
 			return fmt.Errorf("unknown resp.Result(): %v", resp.Result())

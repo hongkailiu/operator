@@ -5,12 +5,13 @@ import (
 	"os"
 
 	"github.com/hongkailiu/test-go/pkg/http"
+	"github.com/hongkailiu/test-go/pkg/http/info"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
-	app = kingpin.New("test-go", "A web application for test.").Version(http.VERSION)
+	app = kingpin.New("test-go", "A web application for test.").Version(info.VERSION)
 
 	debug = app.Flag("debug", "Enable debug mode.").Short('v').Default("false").Bool()
 
