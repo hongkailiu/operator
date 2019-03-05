@@ -6,12 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hongkailiu/test-go/pkg/lib/logger"
 	"github.com/hongkailiu/test-go/pkg/lib/util"
-)
-
-var (
-	log = logger.Logger
+	log "github.com/sirupsen/logrus"
 )
 
 func worker(index int, linkChan chan job, resultChan chan result, wg *sync.WaitGroup) {

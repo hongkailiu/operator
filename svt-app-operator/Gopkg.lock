@@ -436,7 +436,7 @@
   version = "v0.5.0"
 
 [[projects]]
-  digest = "1:afffb519f62bf6766f3b4340a17ea6ee22750c31a4633e1d8351861c1b560cdb"
+  digest = "1:c8cc30918c4f17481ad24170c8338b41df80651c0927021a8b0f2d3add395734"
   name = "github.com/hongkailiu/test-go"
   packages = [
     "pkg/http",
@@ -447,8 +447,8 @@
     "pkg/swagger/swagger/models",
   ]
   pruneopts = "NT"
-  revision = "545469bfb914d6553b237584e06357632d9dcd46"
-  version = "0.0.9"
+  revision = "6088663efbad82200cb0f9154cc6bb7a0aea8025"
+  version = "0.0.10"
 
 [[projects]]
   digest = "1:aaa38889f11896ee3644d77e17dc7764cc47f5f3d3b488268df2af2b52541c5f"

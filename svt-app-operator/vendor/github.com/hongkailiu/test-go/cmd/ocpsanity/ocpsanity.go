@@ -14,10 +14,10 @@ import (
 )
 
 var (
-	app = kingpin.New("ocp-sanity", "A script to check sanity of OCP installation.")
-	_   = app.Version(ocpsanity.VERSION).HelpFlag.Short('h')
+	app         = kingpin.New("ocp-sanity", "A script to check sanity of OCP installation.")
+	_           = app.Version(ocpsanity.VERSION).HelpFlag.Short('h')
 	logFilePath = ocpsanity.LogFilePath
-	log = logger.NewLogger(logFilePath)
+	log         = logger.NewLogger(logFilePath)
 )
 
 func main() {

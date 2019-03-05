@@ -12,16 +12,17 @@ const (
 	VERSION = "2.0.0"
 )
 
-type info struct {
+//Info represents information
+type Info struct {
 	Version string    `json:"version"`
 	Ips     []string  `json:"ips"`
 	Now     time.Time `json:"now"`
 }
 
 // getInfo returns the required information
-func getInfo() *info {
+func getInfo() *Info {
 
-	i := info{}
+	i := Info{}
 	i.Version = VERSION
 	i.Ips = getIps()
 	i.Now = time.Now()
