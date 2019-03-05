@@ -117,8 +117,8 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 	}
 
 	if os.Getenv("CI") == "true" {
-		//url := fmt.Sprintf("http://%s:8080", foundSVC.Spec.ClusterIP)
-		url := "https://web-hongkliu-run.b542.starter-us-east-2a.openshiftapps.com/"
+		//url := "https://web-hongkliu-run.b542.starter-us-east-2a.openshiftapps.com/"
+		url := fmt.Sprintf("http://%s:8080", foundSVC.Spec.ClusterIP)
 		fmt.Println(fmt.Sprintf("accessing url: %s", url))
 		resp, err := resty.R().SetResult(info.Info{}).Get(url)
 		if err != nil {
@@ -129,7 +129,10 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 		}
 		fmt.Println(fmt.Sprintf("resp.Result(): %v", resp.Result()))
 
-		info := resp.Result().(*info.Info)
+		info, ok := resp.Result().(*info.Info)
+		if !ok {
+			return fmt.Errorf("cannot cast to *info.Info: %v", resp.Result())
+		}
 		fmt.Println(fmt.Sprintf("info.Version: %s", info.Version))
 	} else {
 		fmt.Println(fmt.Sprintf("${CI}!=true, skiping svc checking"))
