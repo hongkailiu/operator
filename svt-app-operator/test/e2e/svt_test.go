@@ -117,7 +117,8 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 	}
 
 	if os.Getenv("CI") == "true" {
-		url := fmt.Sprintf("http://%s:8080", foundSVC.Spec.ClusterIP)
+		//url := fmt.Sprintf("http://%s:8080", foundSVC.Spec.ClusterIP)
+		url := "https://web-hongkliu-run.b542.starter-us-east-2a.openshiftapps.com/"
 		fmt.Println(fmt.Sprintf("accessing url: %s", url))
 		resp, err := resty.R().Get(url)
 		if err != nil {
