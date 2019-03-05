@@ -109,7 +109,7 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 	// might need a containerized solution if jump node is supported
 
 	if os.Getenv("CI") == "true" {
-		resp, err := resty.R().Get("http://my-svc.my-namespace.svc.cluster.local:8080")
+		resp, err := resty.R().Get(fmt.Sprintf("http://%s.%s.svc.cluster.local:8080", "example-svt", namespace))
 		if err != nil {
 			return fmt.Errorf("get service with err: %v", err)
 		}
