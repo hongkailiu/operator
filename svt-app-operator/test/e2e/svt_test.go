@@ -106,9 +106,8 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 	if err != nil {
 		return err
 	}
-	// TODO check the deployed svc on travis-ci only
-	// might need a containerized solution if jump node is supported
 
+	// check the deployed svc on travis-ci only
 	// Check if this Service already exists
 	foundSVC := &corev1.Service{}
 	err = f.Client.Get(context.TODO(), types.NamespacedName{Name: "example-svt", Namespace: namespace}, foundSVC)
