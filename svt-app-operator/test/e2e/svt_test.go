@@ -3,15 +3,19 @@ package e2e
 import (
 	goctx "context"
 	"fmt"
+	"net/http"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/hongkailiu/operators/svt-app-operator/pkg/apis"
 	operator "github.com/hongkailiu/operators/svt-app-operator/pkg/apis/app/v1alpha1"
-
+	"github.com/hongkailiu/test-go/pkg/http/info"
 	framework "github.com/operator-framework/operator-sdk/pkg/test"
 	"github.com/operator-framework/operator-sdk/pkg/test/e2eutil"
 	"golang.org/x/net/context"
+	"gopkg.in/resty.v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -104,6 +108,35 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 	}
 	// TODO check the deployed svc on travis-ci only
 	// might need a containerized solution if jump node is supported
+
+	// Check if this Service already exists
+	foundSVC := &corev1.Service{}
+	err = f.Client.Get(context.TODO(), types.NamespacedName{Name: "example-svt", Namespace: namespace}, foundSVC)
+	if err != nil {
+		return fmt.Errorf("get service with err: %v", err)
+	}
+
+	if os.Getenv("CI") == "true" {
+		//url := "https://web-hongkliu-run.b542.starter-us-east-2a.openshiftapps.com/"
+		url := fmt.Sprintf("http://%s:8080", foundSVC.Spec.ClusterIP)
+		fmt.Println(fmt.Sprintf("accessing url: %s", url))
+		resp, err := resty.R().SetResult(info.Info{}).Get(url)
+		if err != nil {
+			return fmt.Errorf("get service with err: %v", err)
+		}
+		if resp.StatusCode() != http.StatusOK {
+			return fmt.Errorf("get service with resp.StatusCode(): %d", resp.StatusCode())
+		}
+		fmt.Println(fmt.Sprintf("resp.Result(): %v", resp.Result()))
+
+		info, ok := resp.Result().(*info.Info)
+		if !ok {
+			return fmt.Errorf("cannot cast to *info.Info: %v", resp.Result())
+		}
+		fmt.Println(fmt.Sprintf("info.Version: %s", info.Version))
+	} else {
+		fmt.Println(fmt.Sprintf("${CI}!=true, skiping svc checking"))
+	}
 
 	return nil
 }

@@ -270,6 +270,14 @@
   version = "v0.5.0"
 
 [[projects]]
+  digest = "1:477275f069ccdbc9bf54444d83e4414bd8367a05cff96d471ac01db5eeba2ef0"
+  name = "github.com/hongkailiu/test-go"
+  packages = ["pkg/http/info"]
+  pruneopts = "NT"
+  revision = "b751406a433aed1976ef2548560b048b80243dbb"
+  version = "0.0.11"
+
+[[projects]]
   digest = "1:aaa38889f11896ee3644d77e17dc7764cc47f5f3d3b488268df2af2b52541c5f"
   name = "github.com/imdario/mergo"
   packages = ["."]
@@ -552,6 +560,7 @@
     "http2",
     "http2/hpack",
     "idna",
+    "publicsuffix",
   ]
   pruneopts = "NT"
   revision = "fe579d43d83210096a79b46dcca0e3721058393a"
@@ -660,6 +669,14 @@
   pruneopts = "NT"
   revision = "d2d2541c53f18d2a059457998ce2876cc8e67cbf"
   version = "v0.9.1"
+
+[[projects]]
+  digest = "1:0942599d1f614d9ca4dfe052db1f60d4547b1b581206006be352f629a8b37d8d"
+  name = "gopkg.in/resty.v1"
+  packages = ["."]
+  pruneopts = "NT"
+  revision = "fa5875c0caa5c260ab78acec5a244215a730247f"
+  version = "v1.12.0"
 
 [[projects]]
   digest = "1:18108594151654e9e696b27b181b953f9a90b16bf14d253dd1b397b025a1487f"
@@ -1000,6 +1017,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/go-openapi/spec",
+    "github.com/hongkailiu/test-go/pkg/http/info",
     "github.com/operator-framework/operator-sdk/pkg/k8sutil",
     "github.com/operator-framework/operator-sdk/pkg/leader",
     "github.com/operator-framework/operator-sdk/pkg/log/zap",
@@ -1008,6 +1026,8 @@
     "github.com/operator-framework/operator-sdk/pkg/test/e2eutil",
     "github.com/operator-framework/operator-sdk/version",
     "github.com/spf13/pflag",
+    "golang.org/x/net/context",
+    "gopkg.in/resty.v1",
     "k8s.io/api/apps/v1",
     "k8s.io/api/core/v1",
     "k8s.io/apimachinery/pkg/api/errors",
