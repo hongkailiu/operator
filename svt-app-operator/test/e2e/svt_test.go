@@ -15,6 +15,7 @@ import (
 	"github.com/operator-framework/operator-sdk/pkg/test/e2eutil"
 	"golang.org/x/net/context"
 	"gopkg.in/resty.v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -108,8 +109,17 @@ func svtScaleTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) 
 	// TODO check the deployed svc on travis-ci only
 	// might need a containerized solution if jump node is supported
 
+	// Check if this Service already exists
+	foundSVC := &corev1.Service{}
+	err = f.Client.Get(context.TODO(), types.NamespacedName{Name: "example-svt", Namespace: namespace}, foundSVC)
+	if err != nil {
+		return fmt.Errorf("get service with err: %v", err)
+	}
+
 	if os.Getenv("CI") == "true" {
-		resp, err := resty.R().Get(fmt.Sprintf("http://%s.%s.svc.cluster.local:8080", "example-svt", namespace))
+		url := fmt.Sprintf("http://%s:8080", foundSVC.Spec.ClusterIP)
+		fmt.Println(fmt.Sprintf("accessing url: %s", url))
+		resp, err := resty.R().Get(url)
 		if err != nil {
 			return fmt.Errorf("get service with err: %v", err)
 		}
